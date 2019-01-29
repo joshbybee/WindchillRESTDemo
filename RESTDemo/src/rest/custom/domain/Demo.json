@@ -1,0 +1,8 @@
+{
+    "name":"Demo Domain",
+    "id":"Demo",
+    "description":"Demo Domain",
+    "nameSpace":"Demo",
+    "containerName":"Windchill",
+    "defaultVersion":"1"
+}

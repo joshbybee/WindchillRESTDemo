@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="ant2html.xsl"?>
+
+<project name="FlexPLM Build" basedir="." default="all">
+
+<condition property="EXECCOMMAND1" value="cmd">
+<os family="windows"/>
+</condition>
+
+<condition property="EXECCOMMAND1" value="sh">
+<os family="unix"/>
+</condition>
+
+<condition property="EXECCOMMAND2" value="/c">
+<os family="windows"/>
+</condition>
+
+<condition property="EXECCOMMAND2" value="-c">
+<os family="unix"/>
+</condition>
+
+
+<target name="all" depends="init,compile" description="FlexPLM Build">
+	<echo message="Building FlexPLM Deployment"/>
+</target>
+<!-- *************************************************************************** -->
+<!-- Initialization Tasks - Tasks to set variables and clean the system          -->
+<!-- *************************************************************************** -->
+
+<!-- Initialize build property values -->
+
+<target name="init">
+
+	<!-- General variables  -->
+	<tstamp>
+		<format property="build.tstamp" pattern="MMddyyyy_hhmmss" unit="hour"/>
+	</tstamp>
+	
+	<property environment="env"/>
+	<property name="deprecation" value="false"/>
+	<property name="source" location = "${basedir}"/>
+	
+	<!-- Set classpath -->
+	<path id="project.class.path">
+	<pathelement path="${env.WT_HOME}/codebase"/>	
+		<!-- codebase -->
+		
+		<fileset dir="${env.WT_HOME}/lib">
+			<!-- include all windchill libs -->
+			<include name="**/*.jar"/>
+		</fileset>
+		
+		<fileset dir="${env.WT_HOME}/srclib">
+			<!-- include all windchill libs -->
+			<include name="**/*.jar"/>
+		</fileset>
+		
+		<fileset dir="${env.WT_HOME}/srclib/tool">
+			<!-- include all windchill libs -->
+			<include name="**/*.jar"/>
+		</fileset>
+		
+		<fileset dir="${env.WT_HOME}/codebase/WEB-INF/lib">
+			<!-- include all windchill libs -->
+			<include name="**/*.jar"/>
+		</fileset>
+		
+	</path>
+	
+	<property name="classpath" refid="project.class.path"/>
+	<property name="codebase" location="${env.WT_HOME}/codebase"/>
+	<property name="web-root" location="${env.WT_HOME}/codebase/rfa/"/>
+	<property name="db" location="${env.WT_HOME}/db"/>
+	<property name="loadFiles" location="${env.WT_HOME}/loadFiles"/>
+	<property name="patches" location="${env.WT_HOME}/patches"/>
+	<property name="src" location="${source}/src"/>
+	<property name="wtCustom" location="${src}/wtCustom"/>
+	<property name="dist" location = "${source}/dist/"/>
+	<property name="bin" location="${source}/bin"/>
+	<property name="compileWithDebug" value="${env.WT_COMPILEWITHDEBUG}"/>
+	<property name="name" value="${source}/*.jar"/>
+	<property name="APACHE_HOME" value="/appl/ptc/Windchill_11.0/"/>
+	
+</target>
+
+<!-- *************************************************************************** -->
+<!-- Java Tasks - Tasks to compile and create package -->
+<!-- *************************************************************************** -->
+
+<!-- Compile source to env.WT_HOME/codebase folder -->
+<target name="compile" depends="init,xconfmanager_custom_properties" description="Compile The Source Code">
+	<mkdir dir="${env.WT_HOME}/codebase/com"/>
+	<javac srcdir="${src}/com" destdir="${env.WT_HOME}/codebase" debug="true" deprecation="${deprecation}" classpath="${classpath}"/>
+</target>
+
+
+<!--  CREATING DISTRIBUTION JAR FILES START   -->
+<target name="makejar" depends="init,copy_codebase_files,compile_src_files,make_build_dir" description="Generate The Distribution">
+	<!-- Create the distribution directory -->
+	<mkdir dir="${dist}"/>
+</target>
+<target name="copy_codebase_files">
+	<copy todir="${dist}/codebase/rfa/" overwrite="true">
+		<fileset dir="${source}/codebase/rfa/" includes="**/*" excludes="**/.svn/**"/>
+	</copy>
+</target>
+
+<!-- Compile source to dist/codebase folder -->
+<target name="compile_src_files" description="Compile The Source Code">
+	<mkdir dir="${dist}/codebase/com"/>
+	<javac srcdir="${src}/com" destdir="${dist}/codebase" debug="true" deprecation="${deprecation}" classpath="${classpath}" excludes="**/.svn/**"/>
+</target>
+
+<target name="make_build_dir">
+	<!-- Put everything in ${build} into the MyProject.jar file -->
+	<jar jarfile="${dist}/DemoBuild_${build.tstamp}.jar" basedir="${dist}"/>
+</target>
+<!--  CREATING DISTRIBUTION JAR FILES END   -->
+
+<!--  INSTALLING DISTRIBUTION JAR FILES START   -->
+
+<target name="install" depends="init,unJAR,copy_codebase_files_to_windchill">
+
+</target>
+<target name="unJAR" >
+	<unzip src="${name}" dest="${env.WT_HOME}/build" />
+</target>
+<target name="copy_codebase_files_to_windchill" >
+	<echo message="Copying codebase files to Windchill..."/>
+	<copy todir="${env.WT_HOME}/codebase" overwrite="true">
+		<fileset dir="${env.WT_HOME}/build/codebase/" includes="**/*" />
+	</copy>
+</target>
+
+<!--  PROPAGATE CUSTOM PROPERTIES VIA XCONFMANAGER -->
+  <target name="xconfmanager_custom_properties" depends="init">
+    <exec dir="${env.WT_HOME}/bin" executable="${EXECCOMMAND1}">
+      <arg value="${EXECCOMMAND2}" />
+    	<arg value="xconfmanager --add type.rest.resources=com.custom.rest.CustomService -t codebase/com/ptc/windchill/rest/rest.properties -p"/>
+	</exec>
+  </target>
+  
+<!--  INSTALLING DISTRIBUTION JAR FILES END   -->
+</project>
+
+<!-- EOF -->

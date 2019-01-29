@@ -1,0 +1,16 @@
+{
+    "name":"CSRFToken",
+    "description":"A complex type to help acquire a nonce through the use of the /PTC/GetCSRFToken()",
+    "attributes":[
+        {
+         "name":"NonceKey",
+         "type":"String",
+         "readOnly": true
+        },
+        {
+         "name":"NonceValue",
+         "type":"String",
+         "readOnly": true
+        }
+    ]
+}

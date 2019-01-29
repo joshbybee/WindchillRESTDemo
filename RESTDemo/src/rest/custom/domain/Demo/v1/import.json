@@ -1,0 +1,28 @@
+{
+    "functions": [
+        {
+            "name": "GetCSRFToken",
+            "importName": "GetCSRFToken",
+            "description": "This will return a CSRF Token (nonce) for this particular Windchill session.",
+            "returnType": {
+                "type": "Demo.CSRFToken"
+            }
+        },
+        {
+        	"name": "GetProductName",
+        	"importName": "GetProductName",
+        	"description": "Gets an LCSProduct",
+        	"returnType": {
+        		"type": "Demo.LCSProduct"
+        	},
+        	"parameters": [
+                {
+                    "name": "oid",
+                    "type": "String",
+                    "isNullable": false,
+                    "isCollection": false
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,16 @@
+{
+    "name":"LCSProduct",
+    "description":"A complex type to help acquire a productName through the use of the /Demo/GetProduct()",
+    "attributes":[
+        {
+         "name":"oid",
+         "type":"String",
+         "readOnly": true
+        },
+        {
+         "name":"productName",
+         "type":"String",
+         "readOnly": true
+        }
+    ]
+}
